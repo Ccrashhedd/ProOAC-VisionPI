@@ -18,7 +18,7 @@
         <button class="btn btn-primary mx-2" type="button" onclick="window.location.href='asistencia'">Tomar lista</button>
         <button class="btn btn-primary mx-2" type="button" onclick="window.location.href='editar_lista'">Editar lista</button>
         <button class="btn btn-primary mx-2" type="button" onclick="window.location.href='crear_excel'">Crear Excel</button>
-        <button class="btn btn-primary mx-2" type="button" onclick="window.location.href='QRgenerador'">Generar QR</button>  
+        <button class="btn btn-primary mx-2" type="button" onclick="window.location.href='QRgenerador'">Generar QR</button>
       </div>
     </div>
   </nav>
@@ -57,55 +57,160 @@
 		 <!-- Bloque derecha -->
         <div class="col-md-4">
             <div class="card text-center">
-				
-				<!-- BUSCAR ESTUDIANTE -->
-				<div class="card-body">
-            <form class="d-flex flex-column align-items-center" role="search">
-                <input class="form-control w-75 mb-2" type="search" placeholder="Buscar" aria-label="Search">
-                <button class="btn btn-primary mx-2 w-50" type="submit">Buscar</button>
-            </form>
+
+            <!-- BUSCAR ESTUDIANTE -->
+            <div class="card-body">
+                <!-- Formulario de búsqueda por cédula -->
+                <form id="searchForm" class="d-flex flex-column align-items-center">
+                    <input class="form-control w-75 mb-2" id="student_cedula" type="text" placeholder="Cédula del estudiante" required>
+                    <button class="btn btn-primary mx-2 w-50" type="button" onclick="buscarEstudiante()">Buscar</button>
+                </form>
             </div>
-           
-				 
-		      <!-- RESULTADO DE BÚSQUEDA -->
-               <div class="mx-4 mt-2 text-center">
-                   <p class="border p-2 rounded">Nombre del estudiante</p>
-                 </div>
-				
-			<!-- BOTONES DE ASISTENCIA -->
-			 <div class="container">
-                <div class="row justify-content-center mt-3">
-                    
-                    <div class="col-6 d-flex justify-content-end">
-                        <button class="btn btn-success w-75">Presente</button>
-                    </div>
-                    <div class="col-6 d-flex justify-content-start">
-                        <button class="btn btn-secondary w-75">Ausente</button>
-                    </div>
-                    
-                    
-                    <div class="col-6 d-flex justify-content-end mt-2">
-                        <button class="btn btn-warning w-75">Tardanza</button>
-                    </div>
-                    <div class="col-6 d-flex justify-content-start mt-2">
-                        <button class="btn btn-danger w-75">Fuga</button>
-                    </div>
-                </div>
+
+            <!-- Resultado de búsqueda -->
+            <div class="mx-4 mt-2 text-center">
+                <p class="border p-2 rounded" id="result">Nombre del estudiante</p>
             </div>
-				 <br>
-				 
-				 <!--GUARDAR-->
-				 <div class="d-flex justify-content-center mt-2">
-                  <button class="btn btn-primary mx-2 w-50" type="button">
-                    <i class="bi bi-save"> Guardar</i>
-                 </button>
-                 </div>
-				 
-                <div class="card-body">
-                </div>
+
+            <!-- Botones para actualizar el estado -->
+<form id="statusForm">
+    <input type="hidden" name="student_cedula" id="hidden_cedula" value="">
+    <input type="hidden" name="selected_status" id="selected_status" value="">
+    <div class="container">
+        <div class="row justify-content-center mt-3">
+            <div class="col-6 d-flex justify-content-end">
+                <button class="btn btn-success w-75" type="button" onclick="setStatus('Presente')">Presente</button>
+            </div>
+            <div class="col-6 d-flex justify-content-start">
+                <button class="btn btn-secondary w-75" type="button" onclick="setStatus('Ausente')">Ausente</button>
+            </div>
+            <div class="col-6 d-flex justify-content-end mt-2">
+                <button class="btn btn-warning w-75" type="button" onclick="setStatus('Tardanza')">Tardanza</button>
+            </div>
+            <div class="col-6 d-flex justify-content-start mt-2">
+                <button class="btn btn-danger w-75" type="button" onclick="setStatus('Fuga')">Fuga</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+                <!-- GUARDAR -->
+<div class="d-flex justify-content-center mt-2">
+    <button id="guardarBtn" class="btn btn-primary mx-2 w-50" type="button" onclick="guardarCambios()">
+        <i class="bi bi-save"> Guardar</i>
+    </button>
+</div>
+
+
+
+            <div class="card-body">
+            </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Variable global para almacenar el estado seleccionado
+let estadoSeleccionado = "";
+
+// Función para buscar un estudiante por cédula
+async function buscarEstudiante() {
+    const cedula = document.getElementById('student_cedula').value;
+
+    // Verificar que la cédula no esté vacía
+    if (!cedula) {
+        alert("Por favor, ingresa una cédula válida.");
+        return;
+    }
+
+    // Enviar la solicitud al servidor
+    const response = await fetch('/buscar_estudiante', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            student_cedula: cedula,
+        }),
+    });
+
+    const resultDiv = document.getElementById('result');
+    const hiddenCedula = document.getElementById('hidden_cedula'); // Campo oculto para la cédula
+    const guardarBtn = document.getElementById('guardarBtn'); // Botón "Guardar"
+
+    if (response.ok) {
+        const data = await response.json();
+        resultDiv.textContent = data.nombre;
+        resultDiv.classList.remove('border-danger');
+        resultDiv.classList.add('border-success');
+
+        // Actualizar el campo oculto y reiniciar estado seleccionado
+        hiddenCedula.value = cedula;
+        estadoSeleccionado = "";
+
+        // Restaurar el color del botón "Guardar" a azul
+        guardarBtn.classList.remove('btn-success');
+        guardarBtn.classList.add('btn-primary');
+    } else {
+        const error = await response.json();
+        resultDiv.textContent = error.error || 'Error al buscar el estudiante.';
+        resultDiv.classList.remove('border-success');
+        resultDiv.classList.add('border-danger');
+
+        // Limpiar el campo oculto
+        hiddenCedula.value = '';
+        estadoSeleccionado = "";
+    }
+}
+
+// Función para guardar el estado seleccionado
+function setStatus(status) {
+    estadoSeleccionado = status;
+    console.log(`Estado seleccionado: ${estadoSeleccionado}`); // Para depuración en la consola
+}
+
+// Función para guardar los cambios en el Excel
+async function guardarCambios() {
+    const cedula = document.getElementById("hidden_cedula").value;
+    const guardarBtn = document.getElementById('guardarBtn'); // Botón "Guardar"
+
+    // Verificar que la cédula y el estado estén disponibles
+    if (!cedula) {
+        alert("Por favor, busca un estudiante antes de guardar.");
+        return;
+    }
+
+    if (!estadoSeleccionado) {
+        alert("Por favor, selecciona un estado antes de guardar.");
+        return;
+    }
+
+    // Enviar la solicitud al servidor
+    const response = await fetch('/editar_estado', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            student_cedula: cedula,
+            status: estadoSeleccionado,
+        }),
+    });
+
+    if (response.ok) {
+        const data = await response.text();
+        alert(`Cambios guardados: ${data}`);
+
+        // Cambiar el color del botón "Guardar" a verde
+        guardarBtn.classList.remove('btn-primary');
+        guardarBtn.classList.add('btn-success');
+    } else {
+        const error = await response.text();
+        alert(`Error al guardar los cambios: ${error}`);
+    }
+}
+</script>
+
 </body>
 </html>
