@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+  <html lang="es">
+  <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asistencia</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css"> <!--ICONOS-->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg custom-navbar">
+    <div class="container-fluid">
+      <div class="collapse navbar-collapse d-flex justify-content-center" id="navbarScroll">
+        <button class="btn btn-primary mx-2" type="button" onclick="window.location.href='asistencia'">Tomar lista</button>
+        <button class="btn btn-primary mx-2" type="button" onclick="window.location.href='editar_lista'">Editar lista</button>
+        <button class="btn btn-primary mx-2" type="button" onclick="window.location.href='crear_excel'">Crear Excel</button>
+        <button class="btn btn-primary mx-2" type="button" onclick="window.location.href='QRgenerador'">Generar QR</button>  
+      </div>
+    </div>
+  </nav>
+<br>
+<div class="container">
+    <div class="row justify-content-center">
+        <!-- Bloque izquierda -->
+        <div class="col-md-4">
+            <div class="card text-center">
+				
+				<!-- SELECCIONAR CÁMARA -->
+				<select class="form-select w-75 mx-auto mt-2">
+                    <option selected>Seleccionar cámara</option>
+                 </select>
+				 
+				 <!-- CÁMARA -->
+                <img src="image1.jpeg" class="card-img-top mx-auto mt-3 rounded" alt="Imagen" style="width: 80%;">
+				
+				<!--NOMBRE DEL ESTUDIANTE-->
+				<div class="mx-4 mt-2 text-center">
+                   <p class="border p-2 rounded">Nombre del estudiante</p>
+                 </div>
+				 
+				 <!--ENCENDER/APAGAR CAMARA-->
+				 <div class="d-flex justify-content-center mt-2">
+                  <button class="btn btn-primary mx-2 w-50" type="button">
+                    <i class="bi bi-power"></i>
+                 </button>
+                 </div>
+				 
+                <div class="card-body">
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloque derecha -->
+        <div class="col-md-4">
+            <div class="card text-center">
+				
+				<!-- ESCOGER LISTA -->
+				<select id="categorySelect" class="form-select w-75 mx-auto mt-2"  onchange="updateList()">
+          <option value="">--Selecciona una lista--</option>
+          <option value="1">Lista 1</option>
+          <option value="2">Lista 2</option>
+          <option value="3">Lista 3</option>
+          <option value="4">Lista 4</option>
+        </select>
+				 <br>
+				 <ul id="nameList"></ul> <!--Lista donde se despliegan los nombres-->
+				 
+				 <!--MOSTRAR LISTA-->
+				<div class="card-body">
+	<!--GUARDAR-->
+			<div class="d-flex justify-content-center mt-2">
+                  <button class="btn btn-primary mx-2 w-50" type="button">
+                    <i class="bi bi-save"> Guardar</i>
+                 </button>
+                 </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
