@@ -27,32 +27,36 @@
 <div class="container">
     <div class="row justify-content-center">
        
-        <!-- Bloque izquierda -->
-        <div class="col-md-4">
-            <div class="card text-center">
-				
-				<!-- ESCOGER LISTA -->
-				<select id="categorySelect" class="form-select w-75 mx-auto mt-2"  onchange="updateList()">
-                      <option value="">--Selecciona una lista--</option>
-                      <option value="1">Lista 1</option>
-                      <option value="2">Lista 2</option>
-                      <option value="3">Lista 3</option>
-                      <option value="4">Lista 4</option>
-                 </select>
-				 <br>
-				 <ul id="nameList"></ul> <!--Lista donde se despliegan los nombres-->
-				 
-				 <!--MOSTRAR LISTA-->
-				<div class="card-body">
-			<!--DESCARGAR-->
-			<div class="d-flex justify-content-center mt-2">
-                  <button class="btn btn-primary mx-2 w-50" type="button">
-                    <i class="bi bi-download"> Descargar</i>
-                 </button>
-                 </div>
-                </div>
-            </div>
+        <!-- Bloque izquierdo -->
+<div class="col-md-6">
+    <div class="card text-center">
+        <h5 class="card-header">Lista Actual</h5>
+        <div class="card-body">
+            <!-- Tabla para mostrar la lista -->
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Apellido</th>
+            <th>Nombre</th>
+            <th>Cédula</th>
+        </tr>
+    </thead>
+    <tbody id="listaTabla">
+        <!-- Aquí se cargarán los datos de la lista -->
+    </tbody>
+</table>
+
         </div>
+    </div>
+
+    <!-- Botón para descargar el archivo de Excel -->
+    <div class="d-flex justify-content-center mt-2">
+        <button id="descargarExcel" class="btn btn-primary mx-2 w-50" type="button" onclick="descargarArchivo()">
+            <i class="bi bi-download"> Descargar</i>
+        </button>
+    </div>
+</div>
+
 		
 		 <!-- Bloque derecha -->
         <div class="col-md-4">
@@ -210,6 +214,71 @@ async function guardarCambios() {
         alert(`Error al guardar los cambios: ${error}`);
     }
 }
+// Función para cargar la lista desde el backend
+async function cargarLista() {
+    const tabla = document.getElementById('listaTabla');
+
+    try {
+        const response = await fetch('/obtener_lista');
+        const data = await response.json();
+
+        if (response.ok) {
+            tabla.innerHTML = '';
+            data.forEach((estudiante) => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${estudiante.Apellido}</td>
+                    <td>${estudiante.Nombre}</td>
+                    <td>${estudiante.Cedula}</td>
+                `;
+                tabla.appendChild(fila);
+            });
+        } else {
+            tabla.innerHTML = `<tr><td colspan="3">Error: ${data.error}</td></tr>`;
+        }
+    } catch (error) {
+        tabla.innerHTML = `<tr><td colspan="3">Error al cargar la lista.</td></tr>`;
+        console.error(error);
+    }
+}
+
+// Función para descargar el archivo Excel
+function descargarArchivo() {
+    // Redirigir al endpoint que sirve el archivo Excel
+    window.location.href = '/descargar_excel';
+}
+
+//depurar cargar lista
+async function cargarLista() {
+    const tabla = document.getElementById('listaTabla');
+
+    try {
+        const response = await fetch('/obtener_lista');
+        const data = await response.json();
+        console.log(data); // Depuración: Verifica el contenido de la respuesta
+
+        if (response.ok) {
+            tabla.innerHTML = '';
+            data.forEach((estudiante) => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${estudiante.Apellido}</td>
+                    <td>${estudiante.Nombre}</td>
+                    <td>${estudiante.Cedula}</td>
+                `;
+                tabla.appendChild(fila);
+            });
+        } else {
+            tabla.innerHTML = `<tr><td colspan="3">Error: ${data.error}</td></tr>`;
+        }
+    } catch (error) {
+        tabla.innerHTML = `<tr><td colspan="3">Error al cargar la lista.</td></tr>`;
+        console.error(error);
+    }
+}
+
+// Cargar la lista cuando la página se cargue
+document.addEventListener('DOMContentLoaded', cargarLista);
 </script>
 
 </body>
